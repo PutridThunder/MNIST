@@ -79,7 +79,7 @@ class MNISTModel (nn.Module):
 model = MNISTModel()
 outputs = model(images)
 loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.50)
 
 # continuing on from MNIST_A.py
 
@@ -87,7 +87,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
 epochs = []
 train = []
 test = []
-for epoch in range(40):
+for epoch in range(301):
     # sets to training mode
     model.train()
 
@@ -96,12 +96,12 @@ for epoch in range(40):
         outputs = model(images)
         loss = loss_fn(outputs, labels)
         loss.backward()
-        optimizer.step()\
+        optimizer.step()
         
     # sets to testing mode
     model.eval()
 
-    if epoch % 2 == 0:
+    if epoch % 10 == 0:
         with torch.no_grad():            
             # Training accuracy
             train_predictions = model(X_train_tensor).argmax(dim=1)
