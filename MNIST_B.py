@@ -84,48 +84,44 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
 # continuing on from MNIST_A.py
 
 # an epoch is what we call a complete pass through the dataset
-x = []
+epochs = []
 train = []
 test = []
-for epoch in range(301):
+for epoch in range(40):
+    # sets to training mode
+    model.train()
+
     for images, labels in train_loader:
         optimizer.zero_grad()
         outputs = model(images)
         loss = loss_fn(outputs, labels)
         loss.backward()
-        optimizer.step()
-    model.eval()
-    if epoch % 10 == 0:
-        with torch.no_grad():
-            predictions = model(X_test_tensor).argmax(dim = 1)
-            correct = (predictions == Y_test_tensor).sum().item()
-
-            x.append(epoch)
-            train.append(correct / len(Y_test_tensor) * 100)
-
-            test_outputs = model(X_test_tensor)
-            test_predictions = test_outputs.argmax(dim=1)
+        optimizer.step()\
         
+    # sets to testing mode
+    model.eval()
+
+    if epoch % 2 == 0:
+        with torch.no_grad():            
+            # Training accuracy
+            train_predictions = model(X_train_tensor).argmax(dim=1)
+            train_correct = (train_predictions == Y_train_tensor).sum().item()
+            train_accuracy = train_correct / len(Y_train_tensor) * 100
+
+            # Testing accuracy
+            test_predictions = model(X_test_tensor).argmax(dim=1)
             test_correct = (test_predictions == Y_test_tensor).sum().item()
-            test.append(test_correct / len(Y_test_tensor) * 100)
+            test_accuracy = test_correct / len(Y_test_tensor) * 100
+
+        epochs.append(epoch)
+        train.append(train_accuracy)
+        test.append(test_accuracy)
 
 
 
 # epoch = 1: 86.86% accuracy
 # epoch = 10: 93.34% accuracy, +6.48% from baseline
 # epoch = 100: 97.74% accuracy +10.88% from baseline
-
-# evaluation
-model.eval()
-with torch.no_grad():
-    outputs = model(X_test_tensor)
-    predictions = outputs.argmax(dim=1)
-
-    correct = (predictions == Y_test_tensor).sum().item()
-    accuracy = correct / len(Y_test_tensor) * 100
-
-# print(f"Test accuracy: {accuracy:.2f}%")
-
 
 # wrong_indices = (predictions != Y_test_tensor).nonzero().flatten()
 # print("Incorrect predictions:", len(wrong_indices))
@@ -174,15 +170,32 @@ print(f"Test accuracy: {test_accuracy:.2f}%")
 # Test accuracy: 97.66%
 
 plt.plot(
-    x,
-    test,
-    color = 'blue',
-    marker = 'o',
+    epochs,
+    train,
+    color='blue', 
+    marker='o', 
+    label='Training'
 )
-plt.title("Testing Accuracy vs. Training Epoch")
-plt.xlabel("Number of epoch")
-plt.ylabel("Accuracy precentages (%)")
+plt.plot(
+    epochs, 
+    test, 
+    color='red', 
+    marker='o', 
+    label='Testing'
+)
 
-plt.xticks(x)
+plt.title("Training vs Testing Accuracy")
+plt.xlabel("Number of Epochs")
+plt.ylabel("Accuracy (%)")
+plt.xticks(epochs)
+
+plt.legend()
 plt.grid(True)
 plt.show()
+
+# given the graph, training and testing overlap roughly at epoch 30-40 
+# then training scores higher than testing
+# therefore. we will be taking epoch = 40 as my value, the rest is possibly due to overfitting
+# this is merely for safety, in critical systems you don't want overfitting
+# however, if the system is not critical, and we are optimising strictly on performance,
+# you may go above 40, in the given graph that choice would be where the slope nears 0
