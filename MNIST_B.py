@@ -85,8 +85,9 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
 
 # an epoch is what we call a complete pass through the dataset
 x = []
-y = []
-for epoch in range(121):
+train = []
+test = []
+for epoch in range(301):
     for images, labels in train_loader:
         optimizer.zero_grad()
         outputs = model(images)
@@ -100,7 +101,13 @@ for epoch in range(121):
             correct = (predictions == Y_test_tensor).sum().item()
 
             x.append(epoch)
-            y.append(correct / len(Y_test_tensor) * 100)
+            train.append(correct / len(Y_test_tensor) * 100)
+
+            test_outputs = model(X_test_tensor)
+            test_predictions = test_outputs.argmax(dim=1)
+        
+            test_correct = (test_predictions == Y_test_tensor).sum().item()
+            test.append(test_correct / len(Y_test_tensor) * 100)
 
 
 
@@ -168,11 +175,11 @@ print(f"Test accuracy: {test_accuracy:.2f}%")
 
 plt.plot(
     x,
-    y,
+    test,
     color = 'blue',
     marker = 'o',
 )
-plt.title("Training accuracy given epoch")
+plt.title("Testing Accuracy vs. Training Epoch")
 plt.xlabel("Number of epoch")
 plt.ylabel("Accuracy precentages (%)")
 
