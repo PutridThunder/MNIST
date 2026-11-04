@@ -2,6 +2,14 @@ import IPython
 import sklearn as sk
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import datasets
+
+# the book used from sklearn.cross_validation import train_test_split,
+# though it gave this error:
+# Import "sklearn.cross_validation" could not be resolved
+# however, its accessable here:
+from sklearn.model_selection import train_test_split 
+from sklearn.preprocessing import StandardScaler
 
 # semi-following along
 # right now i'm just exploring the dataset
@@ -10,13 +18,12 @@ import matplotlib.pyplot as plt
 # every method on scikit-learn assumes that the data comes in a dataset
 # ( 2D array where rows are samples and columns are features )
 
-from sklearn import datasets
 
 iris = datasets.load_iris()
 
-print(type(iris)) # <class 'sklearn.utils._bunch.Bunch'> this means it's stored as a dictionary
+# print(type(iris)) # <class 'sklearn.utils._bunch.Bunch'> this means it's stored as a dictionary
 
-print(iris.keys()) # dict_keys(['data', 'target', 'frame', 'target_names', 'DESCR', 'feature_names', 'filename', 'data_module'])
+# print(iris.keys()) # dict_keys(['data', 'target', 'frame', 'target_names', 'DESCR', 'feature_names', 'filename', 'data_module'])
 
 
 data = iris['data']
@@ -24,7 +31,7 @@ target = iris['target']
 names = iris['target_names']
 desc = iris['DESCR']
 
-print(desc) # output below
+# print(desc) # output below
 '''
 Iris plants dataset
 --------------------
@@ -89,14 +96,14 @@ latter are NOT linearly separable from each other.
   - Many, many more ...
 '''
 
-print(names) # ['setosa' 'versicolor' 'virginica'] probably names of flowers
+# print(names) # ['setosa' 'versicolor' 'virginica'] probably names of flowers
 
 
-print(data.shape)   # (150, 4) 150 indexes, each with 4 attributes
-print(target.shape) # (150, ) 150 indexes, answers for each index in data
+# print(data.shape)   # (150, 4) 150 indexes, each with 4 attributes
+# print(target.shape) # (150, ) 150 indexes, answers for each index in data
 
-print(data[0]) # [5.1 3.5 1.4 0.2]
-print(target[0]) # 0
+# print(data[0]) # [5.1 3.5 1.4 0.2]
+# print(target[0]) # 0
 
 # looked into descr a little late, but now i got a clearer picture
 
@@ -104,24 +111,148 @@ print(target[0]) # 0
 # can be a iris setosa/ versiocolor/virginica 
 # data split about evenly each holding 33.3% of the data
 
-print(target)
+# print(target)
 
-print(type(target))
+# print(type(target))
 
-for x in target:
-    print(x)
+# for x in target:
+#     print(x)
 
-print(sum(target))
+# print(sum(target))
 
 unique_counts, counts = np.unique(target, return_counts=True)
 
-print(unique_counts)
+# print(unique_counts)
 
 plt.bar(unique_counts, counts)
 plt.xticks(unique_counts)
 plt.yticks(range(0,151,5))
+# plt.grid()
 plt.xlabel("flower label")
 plt.ylabel("counts")
 plt.title("Iris Flower Distribution")
 
 plt.show()
+
+# about 50 flowers each
+
+# the book says they're going to use 75% of the data for training, 25% for testing
+
+# it also says it will perform feature scaling
+# for each feature, calculate the average and subtract the mean from the feature and divide by the standard deviation
+# ( x - mean ) / s
+
+# after scaling, the average of each feature will be zero and the standard deviation will be 1
+# sounds like a normal distribution (1 / sqrt( 2 * pi * variance) * e ^ (( x - mean )^2 / (2 * variance)), E[X] = 0, var = E[X^2] - E[X] = 1, STD = sqrt(variance) = 1)
+
+# looking into it, ( x - mean ) / s is the z score
+
+# the z score measures how many standard deciations a data point is from the mean
+
+# im gonna play around with something quickly
+# ########################################################################################################################################################
+def z_score(x, mean, std):
+    return (x - mean) / std
+
+# raw python for calculating means and std
+
+column_means = [0, 0, 0, 0] # what I think the output is going to be
+
+# means for each row
+for row in data:
+    column_means[0] += row[0]
+    column_means[1] += row[1]
+    column_means[2] += row[2]
+    column_means[3] += row[3]
+for i in range(4):
+    column_means[i] = column_means[i] / 150
+
+column_stds = [0, 0, 0, 0]
+
+# standard deviations for each row
+for row in data:
+    column_stds[0] += (row[0] - column_means[0]) ** 2
+    column_stds[1] += (row[1] - column_means[1]) ** 2
+    column_stds[2] += (row[2] - column_means[2]) ** 2
+    column_stds[3] += (row[3] - column_means[3]) ** 2
+
+for i in range(4):
+    column_stds[i] = (column_stds[i] / 150) ** 0.5  # ** 0.5 is square root
+
+# raw python for calculating means and std
+normalized = (data - column_means) / column_stds
+# looks a bit funny because that's the computer's set way of showing numbers like that, lets fix it
+
+np.set_printoptions(precision= 2, suppress=True) # restrict to 2 dp, supress forces numpy to always use standard decimal notation instead of scientific notation
+print(normalized)
+
+
+# using numpy
+print("\n" * 20)
+column_means = np.mean(data, axis=0)
+column_stds = np.std(data, axis = 0)
+
+normalized = (data - column_means) / column_stds
+
+print(normalized)
+
+# so what changed?
+fig, (ax1, ax2) = plt.subplots(1,2, figsize=(12,5))
+
+ax1.hist(data[:,0], bins=25, color = 'skyblue', edgecolor= 'black')
+ax1.set_title("Origional Distribution")
+ax1.set_xlabel("Septal Length (cm)")
+ax1.set_ylabel("Count")
+ax1.axvline(column_means[0], color = 'blue', linestyle = '--', linewidth=2, label = "Mean")
+ax1.grid(axis='y', alpha=0.25)
+
+ax2.hist(normalized[:,0], bins=25, color='salmon', edgecolor='black')
+ax2.set_title("Standardized Distribution (Z-Scores)")
+ax2.set_xlabel("Sepal Length (Z-Score units)")
+ax2.axvline(np.mean(normalized[:,0]), color = 'red', linestyle = '--', linewidth=2, label = "Mean")
+ax2.set_ylabel("Count")
+
+ax2.grid(axis='y', alpha=0.5)
+
+plt.tight_layout()
+plt.show()
+
+
+plt.plot(range(0,150), data[:,0] )
+plt.xticks(range(0,150, 10))
+plt.grid()
+plt.show()
+# ########################################################################################################################################################
+
+# ok let's do it according to the book now
+# they are only using the septal information, nothing from petals
+
+X, y = data[:, :2], target
+
+# splitting the data into test-train 75-25
+
+# the book uses random_state 33, though I have been using 42 as my personal default so far so I will use 42,
+# if there are any differences between our results I'll test to see is the random state affected performance
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+print(X_train.shape, y_train.shape) # 112 indexes each, perfect
+
+scaler = StandardScaler().fit(X_train) # calculates mean and standard deviation per column as stored variables called scalar.mean_ and scalar.scale_, does nothing to X_train
+X_train = scaler.transform(X_train) # turns X_train into a z-score
+
+# we do this because we don't really care about exact unit counts, rather we care about the dataset in respect to itself, 
+# how far specific flowers deviate and where their features appear to cluster
+
+# asked chatgpt right now to check my understanding, it said this
+
+'''
+# We standardize because the exact unit counts aren't necessarily what
+# we care about. Instead, we want to understand how each feature varies
+# relative to its own distribution.
+#
+# This lets us compare how far individual flowers deviate from the mean
+# of each feature, and helps prevent features with larger numerical
+# scales from disproportionately influencing certain ML algorithms.
+'''
+
