@@ -241,6 +241,11 @@ print(X_train.shape, y_train.shape) # 112 indexes each, perfect
 scaler = StandardScaler().fit(X_train) # calculates mean and standard deviation per column as stored variables called scalar.mean_ and scalar.scale_, does nothing to X_train
 X_train = scaler.transform(X_train) # turns X_train into a z-score
 
+# transforming the features by the mean and standard deviation 
+# ( making z-scores using the mean and standard deviation of X_train,
+# since each label's index corresponds to the location of each index in the training dataset) 
+X_test = scaler.transform(X_test)
+
 # we do this because we don't really care about exact unit counts, rather we care about the dataset in respect to itself, 
 # how far specific flowers deviate and where their features appear to cluster
 
@@ -256,3 +261,53 @@ X_train = scaler.transform(X_train) # turns X_train into a z-score
 # scales from disproportionately influencing certain ML algorithms.
 '''
 
+# the book states that standrdization is:
+'''
+a common requirement of machine learning methods, 
+to avoid that features with large values may weight too much on the final results.
+'''
+
+# we don't touch the testing dataset
+print(np.mean(X_train, axis=0))
+
+colormarks = [['red', 's'], ['greenyellow', 'o'], ['blue', 'x']]
+
+
+plt.figure('sepal')
+colormarkers = [ ['red','s'], ['greenyellow','o'], ['blue','x']]
+for i in range(len(colormarkers)):
+    px = data[:, 0][target == i]
+    py = data[:, 1][target == i]
+    plt.scatter(px, py, c=colormarkers[i][0], marker=colormarkers[i][1])
+
+plt.title('Iris Dataset: Sepal width vs sepal length')
+plt.legend(names)
+plt.xlabel('Sepal length')
+plt.ylabel('Sepal width')
+plt.figure('petal')
+
+for i in range(len(colormarkers)):
+    px = data[:, 2][target == i]
+    py = data[:, 3][target == i]
+    plt.scatter(px, py, c=colormarkers[i][0], marker=colormarkers[i][1])
+
+plt.title('Iris Dataset: petal width vs petal length')
+plt.legend(names)
+plt.xlabel('Petal length')
+plt.ylabel('Petal width')
+plt.show()
+
+
+colormarkers = [ ['red','s'], ['greenyellow','o'], ['blue','x']]
+
+plt.figure('Training Data')
+for i in range(len(colormarkers)):
+    xs = X_train[:, 0][y_train == i]
+    ys = X_train[:, 1][y_train == i]
+    plt.scatter(xs, ys, c=colormarkers[i][0], marker=colormarkers[i][1])
+
+plt.title('Training instances, after scaling')
+plt.legend(iris.target_names)
+plt.xlabel('Sepal length')
+plt.ylabel('Sepal width')
+plt.show()
