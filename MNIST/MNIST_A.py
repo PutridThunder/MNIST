@@ -67,7 +67,7 @@ print(first_label)
 
 plt.imshow(first_image, cmap ='binary')
 plt.axis('off')
-# plt.show()
+plt.show()
 
 
 fig, axes = plt.subplots(3,3, figsize=(7,7))
@@ -79,7 +79,7 @@ for i, j in enumerate(axes.flat):
     j.set_title(f"label: {Y[i]}")
 
 plt.tight_layout()
-# plt.show()
+plt.show()
 
 count = np.sum(Y == 5)
 print(count) # 6313 number 5s
@@ -100,7 +100,7 @@ plt.xticks(unique_digits)
 plt.xlabel("Digit")
 plt.ylabel("Number of images")
 plt.title("MNIST Class Distribution")
-# plt.show()
+plt.show()
 
 # we can either ignore the deviation of the points or we can do something called undersampling
 # basically we'd go through each digit and remove enough of that digit so they all equal the bin with the smallest count

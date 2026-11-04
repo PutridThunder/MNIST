@@ -10,6 +10,8 @@ from sklearn import datasets
 # however, its accessable here:
 from sklearn.model_selection import train_test_split 
 from sklearn.preprocessing import StandardScaler
+from sklearn import linear_model
+import copy
 
 # semi-following along
 # right now i'm just exploring the dataset
@@ -311,3 +313,65 @@ plt.legend(iris.target_names)
 plt.xlabel('Sepal length')
 plt.ylabel('Sepal width')
 plt.show()
+
+# this is a discrete dataset
+# measured by "how many" instead of "how long"/"how much"
+
+# the book then transforms the problem into a binary classification task
+# the goal of this is to find which flowers are setosa and which arent
+# for this, we'll collapse all non-setosa targets into the same class
+# later bringing back the three classes
+
+# making copies of y_test and y_train then converting their values
+
+y_train_setosa =copy.copy(y_train)
+
+# anything that is larger than 0 becomes a 1
+# 0 = setosa, 1 = not setosa
+y_train_setosa[y_train_setosa > 0 ] = 1 
+
+y_test_setosa = copy.copy(y_test)
+
+y_test_setosa[y_test_setosa > 0]=1
+
+print ('New training target classes:\n{0}'.format(y_train_setosa))
+
+# the first classifier we'll make will be a linear classifier
+# we'll use the SGDClassifier from scikit-learn to implement a linear model
+
+# the classifier family it comes from recieved its name from its use of Stochastic Gradient Descent
+# we like gradient descent, that's how we find local minimums of a function
+
+'''
+Gradient Descent was introduced by Louis Augustin Cauchy in 1847, to solve a system of linear equations. 
+The idea is based on the observation that a multivariable function decreases fastest in the direction of its negative gradient
+(you can think of the gradient as a generalization of the derivative for several dimensions).
+If we want to find its minimum (at least a local one) we could move in the direction of its negative gradient.
+This is exactly what gradient descent does.
+'''
+
+# set the loss of the classifier to log loss ( -x*log(p) + (1 - x) log( 1 - p)) x = { 0, 1 }, p = learning rate
+# log is used for binary classification
+
+clf = linear_model.SGDClassifier(loss='log', random_state=42)
+
+
+# SGDClassifier(
+#        alpha=0.0001,            # strength of regularization, higher alpha is a higher penalty for larger weights (hyperparameter)
+#        average=False,
+#        class_weight=None,
+#        epsilon=0.1,
+#        eta0=0.0,
+#        fit_intercept=True,
+#        l1_ratio=0.15,             # controls balance between L1 and L2 regularization ?????????????????????????????
+#        learning_rate='optimal',
+#        loss='log',
+#        n_iter=5,
+#        n_jobs=1,
+#        penalty='l2',              # Controls regularization, Regularization discourages the model from developing excessively large weights. basically how much we fit to the training data, we don't want overfitting
+#        power_t=0.5,
+#        random_state=42,
+#        shuffle=True, 
+#        verbose=0,
+#        warm_start=False
+# )
