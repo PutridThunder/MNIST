@@ -1,12 +1,8 @@
 # Using the Mnist Dataset
 # images range is [0,9]
 
-
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-import sklearn
-
 
 from sklearn.datasets import fetch_openml
 
