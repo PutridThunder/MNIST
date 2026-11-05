@@ -361,15 +361,15 @@ clf = linear_model.SGDClassifier(loss='log', random_state=42)
 #        average=False,
 #        class_weight=None,
 #        epsilon=0.1,
-#        eta0=0.0,
+#        eta0=0.0,                  # initial learning rate, used with learning_rate= 'constant'/'invscaling'/'adaptive', 'optimal' ignores this
 #        fit_intercept=True,
 #        l1_ratio=0.15,             # controls balance between L1 and L2 regularization ?????????????????????????????
-#        learning_rate='optimal',
-#        loss='log',
-#        n_iter=5,
+#        learning_rate='optimal',   # controls how large the model's parameters update during training (imagine initially the learning rate is very high, the closer we get to the local minima we want to decrease the learning rate as to not overshoot the target or become unable to reach it)
+#        loss='log',                # loss function type
+#        max_iter=5,                # how many passes (epoch) we do across the training dataset
 #        n_jobs=1,
 #        penalty='l2',              # Controls regularization, Regularization discourages the model from developing excessively large weights. basically how much we fit to the training data, we don't want overfitting
-#        power_t=0.5,
+#        power_t=0.5,               # controls how quickly the learning rate decreases when using learning_rate= 'invscaling', invscaling = n(updates) = sum(updates)/t(power)
 #        random_state=42,
 #        shuffle=True, 
 #        verbose=0,
